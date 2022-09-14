@@ -16,23 +16,22 @@ public class OperatorPubSub {
         Publisher<Integer> pub = iterPublisher(Stream.iterate(1, i -> i + 1).limit(10).collect(Collectors.toList()));
 
         // 1. Map -> 동일 개수
-        Publisher<Integer> mapPub = mapPub(pub, i -> i * 10);
-//        Publisher<Integer> mapPub2 = mapPub(mapPub, i -> -i);
+        Publisher<String> mapPub = mapPub(pub, i -> "[" + i + "]");
         mapPub.subscribe(printSubscribe());
 
         // 2. reduce -> 다른 개수
-//        Publisher<Integer> reducePub = reducePub(pub, 0, (a, b) -> a + b);
-//        reducePub.subscribe(printSubscribe());
+        Publisher<String> reducePub = reducePub(pub, "", (a, b) -> a + b);
+        reducePub.subscribe(printSubscribe());
 
     }
 
-    private static Publisher<Integer> reducePub(Publisher<Integer> pub, int init, BiFunction<Integer, Integer, Integer> bf) {
+    private static <T, R> Publisher<R> reducePub(Publisher<T> pub, R init, BiFunction<R, T, R> bf) {
         return sub -> {
-            pub.subscribe(new DelegateSub(sub) {
-                int result = init;
+            pub.subscribe(new DelegateSub<T, R>(sub) {
+                R result = init;
 
                 @Override
-                public void onNext(Integer item) {
+                public void onNext(T item) {
                     result = bf.apply(this.result, item);
                 }
 
@@ -45,13 +44,13 @@ public class OperatorPubSub {
         };
     }
 
-    private static Publisher<Integer> mapPub(Publisher<Integer> pub, Function<Integer, Integer> function) {
-        return new Publisher<Integer>() {
+    private static <T, R> Publisher<R> mapPub(Publisher<T> pub, Function<T, R> function) {
+        return new Publisher<R>() {
             @Override
-            public void subscribe(Subscriber<? super Integer> sub) {
-                pub.subscribe(new DelegateSub(sub) {
+            public void subscribe(Subscriber<? super R> sub) {
+                pub.subscribe(new DelegateSub<T, R>(sub) {
                     @Override
-                    public void onNext(Integer item) {
+                    public void onNext(T item) {
                         sub.onNext(function.apply(item));
                     }
                 });
@@ -83,8 +82,8 @@ public class OperatorPubSub {
         };
     }
 
-    private static Subscriber<Integer> printSubscribe() {
-        return new Subscriber<>() {
+    private static <T> Subscriber<T> printSubscribe() {
+        return new Subscriber<T>() {
             @Override
             public void onSubscribe(Subscription subscription) {
                 System.out.println("onSubscribe");
@@ -92,7 +91,7 @@ public class OperatorPubSub {
             }
 
             @Override
-            public void onNext(Integer item) {
+            public void onNext(T item) {
                 System.out.println("[onNext] item = " + item);
             }
 

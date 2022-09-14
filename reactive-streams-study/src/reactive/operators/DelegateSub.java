@@ -1,18 +1,15 @@
 package reactive.operators;
 
-
-import java.util.concurrent.Flow;
-
 import static java.util.concurrent.Flow.*;
 
 /**
  * Created by YC on 2022/09/14.
  */
-public class DelegateSub implements Subscriber<Integer> {
+public class DelegateSub<T, R> implements Subscriber<T> {
 
     Subscriber sub;
 
-    public DelegateSub(Subscriber<? super Integer> sub) {
+    public DelegateSub(Subscriber<? super R> sub) {
         this.sub = sub;
     }
 
@@ -22,7 +19,7 @@ public class DelegateSub implements Subscriber<Integer> {
     }
 
     @Override
-    public void onNext(Integer item) {
+    public void onNext(T item) {
         sub.onNext(item);
     }
 
