@@ -6,7 +6,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.context.request.async.DeferredResult;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyEmitter;
 
+import java.io.IOException;
 import java.util.Queue;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -58,6 +60,24 @@ public class SpringAsyncController {
         }
 
         return "OK";
+    }
+
+    @GetMapping("/emitter")
+    public ResponseBodyEmitter emitter(String msg) {
+        ResponseBodyEmitter emitter = new ResponseBodyEmitter();
+
+        Executors.newSingleThreadExecutor().submit(() -> {
+            for (int i = 0; i < 51; i++) {
+                try {
+                    emitter.send("<p> Stream " + i + "<p/>");
+                    Thread.sleep(500);
+                } catch (IOException | InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
+
+        return emitter;
     }
 
     public static void main(String[] args) throws InterruptedException {
