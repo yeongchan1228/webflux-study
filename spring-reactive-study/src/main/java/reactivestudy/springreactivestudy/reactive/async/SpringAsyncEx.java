@@ -17,8 +17,8 @@ import java.util.concurrent.Future;
  * Created by YC on 2022/09/24.
  */
 @Slf4j
-@Component
-//@EnableAsync
+//@Component
+@EnableAsync
 public class SpringAsyncEx {
 
     /**
