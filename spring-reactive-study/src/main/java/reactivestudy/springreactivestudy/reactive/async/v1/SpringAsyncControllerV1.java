@@ -1,16 +1,16 @@
-package reactivestudy.springreactivestudy.reactive.async;
+package reactivestudy.springreactivestudy.reactive.async.v1;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.util.StopWatch;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.context.request.async.DeferredResult;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyEmitter;
 
 import java.io.IOException;
 import java.util.Queue;
-import java.util.concurrent.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -18,7 +18,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 @Slf4j
 @RestController
-public class SpringAsyncController {
+public class SpringAsyncControllerV1 {
 
     static AtomicInteger counter = new AtomicInteger(0);
     Queue<DeferredResult<String>> results = new ConcurrentLinkedDeque<>();
@@ -79,37 +79,4 @@ public class SpringAsyncController {
 
         return emitter;
     }
-
-    public static void main(String[] args) throws InterruptedException {
-        ExecutorService es = Executors.newFixedThreadPool(100);
-
-        RestTemplate restTemplate= new RestTemplate();
-        String url = "http://localhost:8080/dr";
-
-        StopWatch main = new StopWatch();
-        main.start();
-
-        for (int i = 0; i < 100; i++) {
-            es.execute(() -> {
-                int idx = counter.addAndGet(1);
-                log.info("Thread {}", idx);
-
-                StopWatch sw = new StopWatch();
-                sw.start();
-
-                restTemplate.getForObject(url, String.class);
-
-                sw.stop();
-                log.info("Elapsed {} {}", idx, sw.getTotalTimeSeconds());
-
-            });
-        }
-
-        es.shutdown();
-        es.awaitTermination(100, TimeUnit.SECONDS);
-
-        main.stop();
-        log.info("Total time = {}", main.getTotalTimeSeconds());
-    }
-
 }
