@@ -19,7 +19,7 @@ public class LoadTest {
         ExecutorService es = Executors.newFixedThreadPool(100);
 
         RestTemplate restTemplate= new RestTemplate();
-        String url = "http://localhost:8080/v3/rest4?idx={idx}";
+        String url = "http://localhost:8080/v4/rest4?idx={idx}";
 
         CyclicBarrier barrier = new CyclicBarrier(101); // 스레드 동기화 기능 제공
 
