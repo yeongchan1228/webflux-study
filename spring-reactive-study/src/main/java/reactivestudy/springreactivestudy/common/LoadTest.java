@@ -1,4 +1,4 @@
-package reactivestudy.springreactivestudy.reactive.async;
+package reactivestudy.springreactivestudy.common;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.StopWatch;
